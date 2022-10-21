@@ -20,7 +20,7 @@ $ export TRINO_SCHEMA="schemaname"
 Now we can start `flask`:
 
 ```
-$ flask --app flaskr --debug run
+$ flask --app roleapi --debug run
 ```
 
 Server now running on `http://localhost:5000`
