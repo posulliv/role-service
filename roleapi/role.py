@@ -56,6 +56,33 @@ def update_role_privileges(role_name):
         return 'Content-Type not supported'
 
 
+@bp.route('/<role_name>/grant/<user_name>', methods=['POST'])
+def grant_role_to_user(role_name, user_name):
+    if role_name is None:
+        return 'No role name provided'
+    if user_name is None:
+        return 'No user name provided'
+    trino_grant_role_to_user(role_name, user_name)
+    return {
+        'role': role_name,
+        'grants': list_grants_for_role(role_name)
+    }
+
+
+@bp.route('/<role_name>/revoke/<user_name>', methods=['POST'])
+def revoke_role_from_user(role_name, user_name):
+    if role_name is None:
+        return 'No role name provided'
+    if user_name is None:
+        return 'No user name provided'
+    trino_revoke_role_from_user(role_name, user_name)
+    return {
+        'role': role_name,
+        'grants': list_grants_for_role(role_name)
+    }
+
+
+
 @bp.route('/<role_name>', methods=['DELETE'])
 def drop_role(role_name):
     if role_name is not None:
@@ -129,6 +156,15 @@ def grant_table_privilege_to_role(role, privilege, table):
     )
     execute_sql(extensions.trino.get_db(), sql)
 
+
+def trino_grant_role_to_user(role, user):
+    sql = 'GRANT {} TO USER "{}"'.format(role, user)
+    execute_sql(extensions.trino.get_db(), sql)
+
+
+def trino_revoke_role_from_user(role, user):
+    sql = 'REVOKE {} FROM USER "{}"'.format(role, user)
+    execute_sql(extensions.trino.get_db(), sql)
 
 def execute_sql(conn, sql):
     cursor = conn.cursor()
