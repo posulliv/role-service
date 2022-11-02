@@ -12,8 +12,8 @@ def role(role_name=None):
     for role in all_roles:
         if role[0] == role_name:
             return {
-                'role': role_name,
-                'grants': list_grants_for_role(role_name)
+                'role_name': role_name,
+                'privileges': list_grants_for_role(role_name)
             }
     return 'Role not found'
 
@@ -30,7 +30,7 @@ def create_role():
                 grant_table_privilege_to_role(role_name, privilege['type'], privilege['table'])
             return {
                 'role': role_name,
-                'grants': list_grants_for_role(role_name)
+                'privileges': list_grants_for_role(role_name)
             }
         return 'No role name provided'
     else:
@@ -65,7 +65,7 @@ def grant_role_to_user(role_name, user_name):
     trino_grant_role_to_user(role_name, user_name)
     return {
         'role': role_name,
-        'grants': list_grants_for_role(role_name)
+        'privileges': list_grants_for_role(role_name)
     }
 
 
@@ -78,9 +78,8 @@ def revoke_role_from_user(role_name, user_name):
     trino_revoke_role_from_user(role_name, user_name)
     return {
         'role': role_name,
-        'grants': list_grants_for_role(role_name)
+        'privileges': list_grants_for_role(role_name)
     }
-
 
 
 @bp.route('/<role_name>', methods=['DELETE'])

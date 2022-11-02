@@ -1,0 +1,249 @@
+openapi: 3.0.3
+info:
+  version: 0.1.0
+  title: Trino Roles REST API
+  description: Simple API for creating and manging roles.
+  contact:
+    name: Padraig
+    url: 'https://github.com/posulliv/role-service'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /role:
+    get:
+      summary: Get all roles
+      description: Return a list of all roles and the grants for each role
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad request
+        "200":
+          description: A list of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+              examples:
+                Example 1:
+                  summary: Example response
+                  description: Two roles are returned in this example.
+                  value:
+                  - role_name: first role name
+                    privileges:
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: DELETE
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: second table
+                  - role_name: second role name
+                    privileges:
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: third table
+    post:
+      summary: Create a new role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+            examples:
+              Role:
+                summary: An example of role
+                value:
+                  role_name: my galaxy role
+                  privileges:
+                  - type: SELECT
+                    catalog: catalog name
+                    schema: schema name
+                    table: first table
+                  - type: SELECT
+                    catalog: catalog name
+                    schema: schema name
+                    table: second table
+  /role/{role_name}:
+    get:
+      summary: Get a role by name
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the role to get
+      responses:
+        "400":
+          description: Bad request
+        "404":
+          description: Role not found
+        "200":
+          description: An individual role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+              examples:
+                Example 1:
+                  summary: Example response
+                  description: Details for a single role are returned in this example.
+                  value:
+                    role_name: role name
+                    privileges:
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: DELETE
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: second table
+    patch:
+      summary: Update a specified role
+      description: This method only allows you to add additional privileges to a role
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the role to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        "400":
+          description: Bad request
+        "404":
+          description: Role not found
+        "200":
+          description: The updated role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+              examples:
+                Example 1:
+                  summary: Example response
+                  description: Details for a single role are returned in this example.
+                  value:
+                    role_name: role name
+                    privileges:
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: DELETE
+                      catalog: catalog name
+                      schema: schema name
+                      table: first table
+                    - type: SELECT
+                      catalog: catalog name
+                      schema: schema name
+                      table: second table
+    delete:
+      summary: Delete a specified role
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the role to delete
+      responses:
+        "400":
+          description: Bad request
+        "404":
+          description: Role not found
+        "200":
+          description: Role successfully deleted            
+  /role/{role_name}/grant/{user_name}:
+    post:
+      summary: Grant a specific role to a user
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the role to grant
+      - name: user_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the user to grant role to
+      responses:
+        "400":
+          description: Bad request
+        "404":
+          description: Role not found
+        "200":
+          description: An individual role
+  /role/{role_name}/revoke/{user_name}:
+    post:
+      summary: Revoke a specific role from a user
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the role to revoke
+      - name: user_name
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Name of the user to revoke role from
+      responses:
+        "400":
+          description: Bad request
+        "404":
+          description: Role not found
+        "200":
+          description: An individual role
+
+components:
+  schemas:
+    Privilege:
+      type: object
+      properties:
+        catalog:
+          type: string
+        schema:
+          type: string
+        table:
+          type: string
+        type:
+          type: string
+    Role:
+      type: object
+      required:
+      - role_name
+      properties:
+        role_name:
+          type: string
+        privileges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Privilege'            
